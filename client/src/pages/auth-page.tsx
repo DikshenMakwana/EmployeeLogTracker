@@ -9,6 +9,7 @@ import { insertUserSchema, type InsertUser } from "@shared/schema";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Redirect } from "wouter";
 import { ClipboardList } from "lucide-react";
+import {Checkbox} from "@/components/ui/checkbox"
 
 export default function AuthPage() {
   const { user, loginMutation, registerMutation } = useAuth();
@@ -127,6 +128,26 @@ export default function AuthPage() {
                               <Input placeholder="Full Name" {...field} />
                             </FormControl>
                             <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={registerForm.control}
+                        name="isAdmin"
+                        render={({ field }) => (
+                          <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+                            <FormControl>
+                              <Checkbox
+                                checked={field.value}
+                                onCheckedChange={field.onChange}
+                              />
+                            </FormControl>
+                            <div className="space-y-1 leading-none">
+                              <span>Register as Administrator</span>
+                              <p className="text-sm text-muted-foreground">
+                                Administrators can manage all employee logs and user accounts
+                              </p>
+                            </div>
                           </FormItem>
                         )}
                       />
