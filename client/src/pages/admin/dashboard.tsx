@@ -1,14 +1,44 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { DashboardLayout } from "@/components/layout/dashboard-layout";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Form } from "@/components/ui/form";
+import { Form, FormField, FormItem, FormControl, FormMessage } from "@/components/ui/form";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { UserTable } from "@/components/admin/user-table";
 import { LogTable } from "@/components/admin/log-table";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { insertUserSchema } from "@shared/schema";
 import { LogForm } from "@/components/admin/log-form";
 import { Users, FileText } from "lucide-react";
 
 export default function AdminDashboard() {
+  const queryClient = useQueryClient();
+  const registerForm = useForm({
+    resolver: zodResolver(insertUserSchema),
+    defaultValues: {
+      username: "",
+      password: "",
+      fullName: "",
+      isAdmin: false,
+    },
+  });
+
+  const registerMutation = useMutation({
+    mutationFn: (data) => 
+      fetch("/api/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      }).then((res) => res.json()),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/users"] });
+      registerForm.reset();
+    },
+  });
+
   const { data: users = [] } = useQuery({
     queryKey: ["/api/admin/users"],
   });
