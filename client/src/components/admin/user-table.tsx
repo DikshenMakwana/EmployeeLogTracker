@@ -24,7 +24,9 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Trash2, Edit } from "lucide-react";
 import { type User } from "@shared/schema";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, Input, Checkbox } from '@radix-ui/react-dialog'
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
+import { Input } from '@/components/ui/input'
+import { Checkbox } from '@/components/ui/checkbox'
 import { useState } from 'react';
 
 
