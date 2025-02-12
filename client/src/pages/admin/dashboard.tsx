@@ -48,6 +48,7 @@ export default function AdminDashboard() {
           <TabsList>
             <TabsTrigger value="logs">Logs</TabsTrigger>
             <TabsTrigger value="users">Users</TabsTrigger>
+            <TabsTrigger value="register">Register User</TabsTrigger>
           </TabsList>
           
           <TabsContent value="logs" className="space-y-4">
@@ -57,6 +58,69 @@ export default function AdminDashboard() {
           
           <TabsContent value="users">
             <UserTable />
+          </TabsContent>
+          
+          <TabsContent value="register">
+            <Card>
+              <CardContent className="pt-6">
+                <Form {...registerForm}>
+                  <form onSubmit={registerForm.handleSubmit((data) => registerMutation.mutate(data))} className="space-y-4">
+                    <FormField
+                      control={registerForm.control}
+                      name="username"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormControl>
+                            <Input placeholder="Username" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={registerForm.control}
+                      name="password"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormControl>
+                            <Input type="password" placeholder="Password" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={registerForm.control}
+                      name="fullName"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormControl>
+                            <Input placeholder="Full Name" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={registerForm.control}
+                      name="isAdmin"
+                      render={({ field }) => (
+                        <FormItem className="flex items-center space-x-2">
+                          <FormControl>
+                            <Checkbox checked={field.value} onCheckedChange={field.onChange} />
+                          </FormControl>
+                          <label>Is Admin</label>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <Button type="submit" disabled={registerMutation.isPending}>
+                      Register User
+                    </Button>
+                  </form>
+                </Form>
+              </CardContent>
+            </Card>
           </TabsContent>
         </Tabs>
       </div>
