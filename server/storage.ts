@@ -4,7 +4,7 @@ import { eq } from "drizzle-orm";
 import session from "express-session";
 import connectPg from "connect-pg-simple";
 import { pool } from "./db";
-import bcrypt from 'bcrypt'; // Added bcrypt for password hashing
+import bcrypt from 'bcrypt';
 
 const PostgresSessionStore = connectPg(session);
 
