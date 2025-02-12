@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { insertLogSchema, type InsertLog } from "@shared/schema";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import {
   Table,
@@ -80,9 +81,7 @@ export function LogTable() {
     },
   });
 
-  import { insertLogSchema } from "@shared/schema";
-
-// Calculate monthly statistics
+  // Calculate monthly statistics
   const currentMonth = new Date().getMonth();
   const currentYear = new Date().getFullYear();
   const monthlyLogs = logs.filter(log => {
