@@ -63,6 +63,13 @@ app.use((req, res, next) => {
       console.log(`✅ Server is running on port ${PORT}`);
     });
 
+    setTimeout(() => {
+      if (!server.listening) {
+        console.error("❌ Server failed to start. Exiting...");
+        process.exit(1);
+      }
+    }, 30000);
+
   } catch (error) {
     log(`Failed to start server: ${error}`);
     process.exit(1);
