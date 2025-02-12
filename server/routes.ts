@@ -21,6 +21,11 @@ export function registerRoutes(app: Express): Server {
     res.json(users);
   });
 
+  app.put("/api/admin/users/:id", requireAdmin, async (req, res) => {
+    const user = await storage.updateUser(Number(req.params.id), req.body);
+    res.json(user);
+  });
+
   app.delete("/api/admin/users/:id", requireAdmin, async (req, res) => {
     await storage.deleteUser(Number(req.params.id));
     res.sendStatus(200);

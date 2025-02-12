@@ -19,6 +19,7 @@ export interface IStorage {
   getAllLogs(): Promise<Log[]>;
   deleteLog(id: number): Promise<void>;
   updateLog(id: number, data: InsertLog): Promise<Log | undefined>;
+  updateUser(id: number, data: Partial<User>): Promise<User | undefined>;
   sessionStore: session.Store;
 }
 
@@ -85,6 +86,18 @@ export class DatabaseStorage implements IStorage {
       .where(eq(logs.id, id))
       .returning();
     return updated;
+  }
+
+  async updateUser(id: number, data: Partial<User>): Promise<User | undefined> {
+    if (data.password) {
+      data.password = await hashPassword(data.password);
+    } else {
+      delete data.password;
+    }
+    await db.update(users)
+      .set(data)
+      .where(eq(users.id, id));
+    return this.getUser(id);
   }
 }
 

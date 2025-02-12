@@ -22,8 +22,11 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { Trash2 } from "lucide-react";
+import { Trash2, Edit } from "lucide-react";
 import { type User } from "@shared/schema";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, Input, Checkbox } from '@radix-ui/react-dialog'
+import { useState } from 'react';
+
 
 export function UserTable() {
   const { toast } = useToast();
@@ -51,6 +54,29 @@ export function UserTable() {
     },
   });
 
+  const updateUser = useMutation({
+    mutationFn: async (user: User) => {
+      await apiRequest("PUT", `/api/admin/users/${user.id}`, user);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/users"] });
+      toast({
+        title: "Success",
+        description: "User updated successfully",
+      });
+      setEditingUser(null);
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
+  const [editingUser, setEditingUser] = useState<User | null>(null);
+
   return (
     <div className="rounded-md border">
       <Table>
@@ -72,7 +98,54 @@ export function UserTable() {
                   {user.isAdmin ? "Admin" : "Employee"}
                 </Badge>
               </TableCell>
-              <TableCell>
+              <TableCell className="flex gap-2">
+                <Dialog open={editingUser?.id === user.id} onOpenChange={(open) => !open && setEditingUser(null)}>
+                  <DialogTrigger asChild>
+                    <Button variant="ghost" size="icon" onClick={() => setEditingUser(user)}>
+                      <Edit className="h-4 w-4" />
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent>
+                    <DialogHeader>
+                      <DialogTitle>Edit User</DialogTitle>
+                    </DialogHeader>
+                    <div className="grid gap-4 py-4">
+                      <div className="grid gap-2">
+                        <Input
+                          placeholder="Full Name"
+                          value={editingUser?.fullName || ''}
+                          onChange={(e) => setEditingUser(prev => prev ? {...prev, fullName: e.target.value} : null)}
+                        />
+                      </div>
+                      <div className="grid gap-2">
+                        <Input
+                          placeholder="Username"
+                          value={editingUser?.username || ''}
+                          onChange={(e) => setEditingUser(prev => prev ? {...prev, username: e.target.value} : null)}
+                        />
+                      </div>
+                      <div className="grid gap-2">
+                        <Input
+                          type="password"
+                          placeholder="New Password (leave empty to keep current)"
+                          value={editingUser?.password || ''}
+                          onChange={(e) => setEditingUser(prev => prev ? {...prev, password: e.target.value} : null)}
+                        />
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <Checkbox
+                          id="isAdmin"
+                          checked={editingUser?.isAdmin || false}
+                          onCheckedChange={(checked) => setEditingUser(prev => prev ? {...prev, isAdmin: checked} : null)}
+                        />
+                        <label htmlFor="isAdmin">Is Admin</label>
+                      </div>
+                      <Button onClick={() => editingUser && updateUser.mutate(editingUser)} disabled={updateUser.isPending}>
+                        Save Changes
+                      </Button>
+                    </div>
+                  </DialogContent>
+                </Dialog>
                 <AlertDialog>
                   <AlertDialogTrigger asChild>
                     <Button
