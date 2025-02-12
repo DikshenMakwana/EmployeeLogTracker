@@ -4,6 +4,7 @@ import { eq } from "drizzle-orm";
 import session from "express-session";
 import connectPg from "connect-pg-simple";
 import { pool } from "./db";
+import bcrypt from 'bcrypt'; // Added bcrypt for password hashing
 
 const PostgresSessionStore = connectPg(session);
 
@@ -87,4 +88,28 @@ export class DatabaseStorage implements IStorage {
   }
 }
 
+
+async function hashPassword(password: string): Promise<string> {
+  const saltRounds = 10;
+  const salt = await bcrypt.genSalt(saltRounds);
+  const hash = await bcrypt.hash(password, salt);
+  return hash;
+}
+
+async function initDefaultAdmin() {
+  const adminUser = await db.query.users.findFirst({
+    where: eq(users.username, "edtech.arsh@gmail.com")
+  });
+
+  if (!adminUser) {
+    await db.insert(users).values({
+      username: "edtech.arsh@gmail.com",
+      password: await hashPassword("arsh@123?"),
+      fullName: "Admin",
+      isAdmin: true
+    });
+  }
+}
+
 export const storage = new DatabaseStorage();
+export { initDefaultAdmin }; // Exported for use elsewhere in the application
