@@ -166,14 +166,7 @@ export default function AuthPage() {
         </Card>
       </div>
 
-      <div className="hidden lg:flex flex-col justify-center p-12 bg-primary text-white">
-        <h2 className="text-4xl font-bold mb-4">Welcome to Employee LogBook</h2>
-        <p className="text-lg opacity-90">
-          A secure and efficient way to manage employee records and daily logs.
-          Access your personal logbook or manage employee records with our
-          intuitive interface.
-        </p>
-      </div>
+      
     </div>
   );
 }
