@@ -1,4 +1,4 @@
-import { pgTable, text, serial, timestamp, boolean } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, timestamp, integer, boolean } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -14,7 +14,8 @@ export const logs = pgTable("logs", {
   id: serial("id").primaryKey(),
   userId: serial("user_id").references(() => users.id),
   date: timestamp("date").notNull(),
-  content: text("content").notNull(),
+  task: text("task").notNull(),
+  wordCount: integer("word_count").notNull(),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
@@ -35,10 +36,12 @@ export const insertLogSchema = createInsertSchema(logs)
   .pick({
     userId: true,
     date: true,
-    content: true,
+    task: true,
+    wordCount: true,
   })
   .extend({
-    content: z.string().min(1, "Log content is required"),
+    task: z.string().min(1, "Task description is required"),
+    wordCount: z.number().min(0, "Word count must be non-negative"),
   });
 
 export type InsertUser = z.infer<typeof insertUserSchema>;

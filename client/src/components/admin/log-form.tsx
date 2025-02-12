@@ -5,6 +5,7 @@ import { insertLogSchema, type InsertLog, type User } from "@shared/schema";
 import { Form, FormControl, FormField, FormItem, FormMessage } from "@/components/ui/form";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { apiRequest, queryClient } from "@/lib/queryClient";
@@ -23,7 +24,8 @@ export function LogForm() {
   const form = useForm<InsertLog>({
     resolver: zodResolver(insertLogSchema),
     defaultValues: {
-      content: "",
+      task: "",
+      wordCount: 0,
       date: new Date(),
     },
   });
@@ -116,14 +118,32 @@ export function LogForm() {
 
             <FormField
               control={form.control}
-              name="content"
+              name="task"
               render={({ field }) => (
                 <FormItem>
                   <FormControl>
                     <Textarea
-                      placeholder="Enter log content..."
+                      placeholder="Enter task description..."
                       className="resize-none"
                       {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="wordCount"
+              render={({ field }) => (
+                <FormItem>
+                  <FormControl>
+                    <Input
+                      type="number"
+                      placeholder="Word count"
+                      {...field}
+                      onChange={(e) => field.onChange(Number(e.target.value))}
                     />
                   </FormControl>
                   <FormMessage />
