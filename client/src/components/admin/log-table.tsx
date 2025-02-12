@@ -80,7 +80,9 @@ export function LogTable() {
     },
   });
 
-  // Calculate monthly statistics
+  import { insertLogSchema } from "@shared/schema";
+
+// Calculate monthly statistics
   const currentMonth = new Date().getMonth();
   const currentYear = new Date().getFullYear();
   const monthlyLogs = logs.filter(log => {
