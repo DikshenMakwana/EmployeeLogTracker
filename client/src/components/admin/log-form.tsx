@@ -32,7 +32,12 @@ export function LogForm() {
 
   const createLog = useMutation({
     mutationFn: async (data: InsertLog) => {
-      const response = await apiRequest("POST", "/api/logs", data);
+      // Ensure date is properly formatted as ISO string
+      const formattedData = {
+        ...data,
+        date: new Date(data.date).toISOString(),
+      };
+      const response = await apiRequest("POST", "/api/logs", formattedData);
       return response;
     },
     onSuccess: () => {
@@ -174,8 +179,8 @@ export function LogForm() {
               )}
             />
 
-            <Button 
-              type="submit" 
+            <Button
+              type="submit"
               className="w-full"
               disabled={createLog.isPending}
             >

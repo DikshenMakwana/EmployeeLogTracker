@@ -6,6 +6,7 @@ import NotFound from "@/pages/not-found";
 import AuthPage from "@/pages/auth-page";
 import { ProtectedRoute } from "./lib/protected-route";
 import AdminDashboard from "@/pages/admin/dashboard";
+import UserManagement from "@/pages/admin/users";
 import EmployeeLogs from "@/pages/employee/logs";
 import { AuthProvider } from "@/hooks/use-auth";
 
@@ -14,6 +15,7 @@ function Router() {
     <Switch>
       <Route path="/auth" component={AuthPage} />
       <ProtectedRoute path="/admin/dashboard" component={AdminDashboard} />
+      <ProtectedRoute path="/admin/users" component={UserManagement} />
       <ProtectedRoute path="/logs" component={EmployeeLogs} />
       <Route path="/" component={() => {
         const user = JSON.parse(localStorage.getItem("user") || "{}");
