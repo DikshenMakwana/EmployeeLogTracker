@@ -112,4 +112,5 @@ async function initDefaultAdmin() {
 }
 
 export const storage = new DatabaseStorage();
-export { initDefaultAdmin }; // Exported for use elsewhere in the application
+storage.initDefaultAdmin = initDefaultAdmin;
+export { initDefaultAdmin };
