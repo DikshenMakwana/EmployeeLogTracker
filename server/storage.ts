@@ -1,8 +1,11 @@
 import { logs, users, type User, type InsertUser, type Log, type InsertLog } from "@shared/schema";
+import { db } from "./db";
+import { eq } from "drizzle-orm";
 import session from "express-session";
-import createMemoryStore from "memorystore";
+import connectPg from "connect-pg-simple";
+import { pool } from "./db";
 
-const MemoryStore = createMemoryStore(session);
+const PostgresSessionStore = connectPg(session);
 
 export interface IStorage {
   getUser(id: number): Promise<User | undefined>;
@@ -17,73 +20,57 @@ export interface IStorage {
   sessionStore: session.Store;
 }
 
-export class MemStorage implements IStorage {
-  private users: Map<number, User>;
-  private logs: Map<number, Log>;
-  private currentUserId: number;
-  private currentLogId: number;
+export class DatabaseStorage implements IStorage {
   readonly sessionStore: session.Store;
 
   constructor() {
-    this.users = new Map();
-    this.logs = new Map();
-    this.currentUserId = 1;
-    this.currentLogId = 1;
-    this.sessionStore = new MemoryStore({
-      checkPeriod: 86400000,
+    this.sessionStore = new PostgresSessionStore({
+      pool,
+      createTableIfMissing: true,
     });
   }
 
   async getUser(id: number): Promise<User | undefined> {
-    return this.users.get(id);
+    const [user] = await db.select().from(users).where(eq(users.id, id));
+    return user;
   }
 
   async getUserByUsername(username: string): Promise<User | undefined> {
-    return Array.from(this.users.values()).find(
-      (user) => user.username === username,
-    );
+    const [user] = await db.select().from(users).where(eq(users.username, username));
+    return user;
   }
 
   async createUser(insertUser: InsertUser): Promise<User> {
-    const id = this.currentUserId++;
-    const user: User = { id, isAdmin: false, ...insertUser };
-    this.users.set(id, user);
+    const [user] = await db.insert(users).values(insertUser).returning();
     return user;
   }
 
   async getAllUsers(): Promise<User[]> {
-    return Array.from(this.users.values());
+    return await db.select().from(users);
   }
 
   async deleteUser(id: number): Promise<void> {
-    this.users.delete(id);
+    await db.delete(users).where(eq(users.id, id));
     // Delete associated logs
-    const userLogs = await this.getLogsByUserId(id);
-    for (const log of userLogs) {
-      this.logs.delete(log.id);
-    }
+    await db.delete(logs).where(eq(logs.userId, id));
   }
 
   async createLog(insertLog: InsertLog): Promise<Log> {
-    const id = this.currentLogId++;
-    const log: Log = { id, createdAt: new Date(), ...insertLog };
-    this.logs.set(id, log);
+    const [log] = await db.insert(logs).values(insertLog).returning();
     return log;
   }
 
   async getLogsByUserId(userId: number): Promise<Log[]> {
-    return Array.from(this.logs.values()).filter(
-      (log) => log.userId === userId,
-    );
+    return await db.select().from(logs).where(eq(logs.userId, userId));
   }
 
   async getAllLogs(): Promise<Log[]> {
-    return Array.from(this.logs.values());
+    return await db.select().from(logs);
   }
 
   async deleteLog(id: number): Promise<void> {
-    this.logs.delete(id);
+    await db.delete(logs).where(eq(logs.id, id));
   }
 }
 
-export const storage = new MemStorage();
+export const storage = new DatabaseStorage();
