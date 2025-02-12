@@ -13,7 +13,7 @@ import {Checkbox} from "@/components/ui/checkbox"
 
 export default function AuthPage() {
   const { user, loginMutation, registerMutation } = useAuth();
-  
+
   const loginForm = useForm({
     defaultValues: {
       username: "",
@@ -36,8 +36,8 @@ export default function AuthPage() {
   }
 
   return (
-    <div className="min-h-screen grid lg:grid-cols-2">
-      <div className="flex items-center justify-center p-8">
+    <div className="flex flex-col lg:flex-row min-h-screen"> {/* This line is changed */}
+      <div className="flex-1 flex items-center justify-center p-4"> {/* This line is changed */}
         <Card className="w-full max-w-md">
           <CardContent className="pt-6">
             <div className="flex items-center gap-2 mb-6">

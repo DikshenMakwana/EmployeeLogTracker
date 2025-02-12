@@ -7,9 +7,9 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
   const { user, logoutMutation } = useAuth();
 
   return (
-    <div className="min-h-screen flex">
+    <div className="min-h-screen flex flex-col md:flex-row">
       {/* Sidebar */}
-      <div className="w-64 bg-primary text-white p-4 flex flex-col">
+      <div className="w-full md:w-64 bg-primary text-white p-4 flex flex-col">
         <div className="flex items-center gap-2 mb-8">
           <ClipboardList className="h-6 w-6" />
           <h1 className="text-xl font-bold">LogBook</h1>

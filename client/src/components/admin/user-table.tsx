@@ -80,14 +80,14 @@ export function UserTable() {
   const [editingUser, setEditingUser] = useState<User | null>(null);
 
   return (
-    <div className="rounded-md border">
+    <div className="rounded-md border overflow-x-auto">
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>Full Name</TableHead>
-            <TableHead>Username</TableHead>
-            <TableHead>Role</TableHead>
-            <TableHead className="w-[100px]">Actions</TableHead>
+            <TableHead className="whitespace-nowrap">Full Name</TableHead>
+            <TableHead className="whitespace-nowrap">Username</TableHead>
+            <TableHead className="whitespace-nowrap">Role</TableHead>
+            <TableHead className="whitespace-nowrap w-[100px]">Actions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>

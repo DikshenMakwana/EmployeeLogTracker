@@ -123,7 +123,7 @@ export function LogTable() {
 
   return (
     <div className="space-y-6">
-      <div className="grid gap-4 md:grid-cols-3">
+      <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3">
         <div className="rounded-lg border p-4">
           <div className="text-sm font-medium text-muted-foreground">Total Word Count</div>
           <div className="text-2xl font-bold">{monthlyStats.totalWordCount}</div>
