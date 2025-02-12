@@ -31,6 +31,9 @@ type MonthlyStats = {
 export function LogTable() {
   const { toast } = useToast();
   const [editingLog, setEditingLog] = useState<Log | null>(null);
+  const [selectedEmployee, setSelectedEmployee] = useState<number | "all">("all");
+  const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth());
+  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
 
   const editLog = useMutation({
     mutationFn: async (data: Log) => {
@@ -84,9 +87,11 @@ export function LogTable() {
   // Calculate monthly statistics
   const currentMonth = new Date().getMonth();
   const currentYear = new Date().getFullYear();
-  const monthlyLogs = logs.filter(log => {
+  const filteredLogs = logs.filter(log => {
     const logDate = new Date(log.date);
-    return logDate.getMonth() === currentMonth && logDate.getFullYear() === currentYear;
+    const matchesMonth = logDate.getMonth() === selectedMonth && logDate.getFullYear() === selectedYear;
+    const matchesEmployee = selectedEmployee === "all" || log.userId === selectedEmployee;
+    return matchesMonth && matchesEmployee;
   });
 
   const editForm = useForm({
@@ -116,13 +121,39 @@ export function LogTable() {
   };
 
   const monthlyStats: MonthlyStats = {
-    totalWordCount: monthlyLogs.reduce((sum, log) => sum + log.wordCount, 0),
-    averageWordCount: Math.round(monthlyLogs.reduce((sum, log) => sum + log.wordCount, 0) / (monthlyLogs.length || 1)),
-    totalEntries: monthlyLogs.length,
+    totalWordCount: filteredLogs.reduce((sum, log) => sum + log.wordCount, 0),
+    averageWordCount: Math.round(filteredLogs.reduce((sum, log) => sum + log.wordCount, 0) / (filteredLogs.length || 1)),
+    totalEntries: filteredLogs.length,
   };
 
   return (
     <div className="space-y-6">
+      <div className="flex gap-4 items-center mb-4">
+        <select
+          className="border rounded-md px-3 py-2"
+          value={selectedEmployee}
+          onChange={(e) => setSelectedEmployee(e.target.value === "all" ? "all" : parseInt(e.target.value))}
+        >
+          <option value="all">All Employees</option>
+          {users.map((user) => (
+            <option key={user.id} value={user.id}>
+              {user.fullName}
+            </option>
+          ))}
+        </select>
+        <select
+          className="border rounded-md px-3 py-2"
+          value={selectedMonth}
+          onChange={(e) => setSelectedMonth(parseInt(e.target.value))}
+        >
+          {Array.from({ length: 12 }, (_, i) => (
+            <option key={i} value={i}>
+              {new Date(2000, i).toLocaleString('default', { month: 'long' })}
+            </option>
+          ))}
+        </select>
+      </div>
+
       <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3">
         <div className="rounded-lg border p-4">
           <div className="text-sm font-medium text-muted-foreground">Total Word Count</div>

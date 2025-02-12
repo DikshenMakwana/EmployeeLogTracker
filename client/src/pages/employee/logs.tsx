@@ -14,6 +14,8 @@ import {
 
 export default function EmployeeLogs() {
   const { user } = useAuth();
+  const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth());
+  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
 
   const { data: logs = [] } = useQuery<Log[]>({
     queryKey: [`/api/logs/${user?.id}`],
@@ -21,9 +23,9 @@ export default function EmployeeLogs() {
   });
 
   // Calculate monthly statistics
-  const currentMonth = new Date().getMonth();
-  const currentYear = new Date().getFullYear();
   const monthlyLogs = logs.filter(log => {
+    const logDate = new Date(log.date);
+    return logDate.getMonth() === selectedMonth && logDate.getFullYear() === selectedYear;
     const logDate = new Date(log.date);
     return logDate.getMonth() === currentMonth && logDate.getFullYear() === currentYear;
   });
@@ -34,7 +36,20 @@ export default function EmployeeLogs() {
   return (
     <DashboardLayout>
       <div className="space-y-8">
-        <h1 className="text-3xl font-bold">My Logs</h1>
+        <div className="flex justify-between items-center">
+          <h1 className="text-3xl font-bold">My Logs</h1>
+          <select 
+            className="border rounded-md px-3 py-2"
+            value={selectedMonth}
+            onChange={(e) => setSelectedMonth(parseInt(e.target.value))}
+          >
+            {Array.from({ length: 12 }, (_, i) => (
+              <option key={i} value={i}>
+                {new Date(2000, i).toLocaleString('default', { month: 'long' })}
+              </option>
+            ))}
+          </select>
+        </div>
 
         <div className="grid gap-4 md:grid-cols-2">
           <div className="rounded-lg border p-4">
