@@ -26,8 +26,6 @@ export default function EmployeeLogs() {
   const monthlyLogs = logs.filter(log => {
     const logDate = new Date(log.date);
     return logDate.getMonth() === selectedMonth && logDate.getFullYear() === selectedYear;
-    const logDate = new Date(log.date);
-    return logDate.getMonth() === currentMonth && logDate.getFullYear() === currentYear;
   });
 
   const monthlyTotal = monthlyLogs.reduce((sum, log) => sum + log.wordCount, 0);
