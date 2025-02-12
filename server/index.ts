@@ -47,18 +47,17 @@ app.use((req, res, next) => {
       res.status(status).json({ message });
     });
 
-    if (app.get("env") === "development") {
-      await setupVite(app, server);
-    } else {
-      serveStatic(app);
-    }
-
-    // Use environment port or fallback to 3000
-    const PORT = parseInt(process.env.PORT || "3000", 10);
+    // Always use port 5000 for Replit
+    const PORT = 5000;
     log(`Starting server on port ${PORT}`);
 
     server.listen(PORT, "0.0.0.0", () => {
       log(`Server is running on port ${PORT}`);
+      if (app.get("env") === "development") {
+        setupVite(app, server);
+      } else {
+        serveStatic(app);
+      }
     });
   } catch (error) {
     log(`Failed to start server: ${error}`);
