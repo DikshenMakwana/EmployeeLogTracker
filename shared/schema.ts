@@ -40,8 +40,12 @@ export const insertLogSchema = createInsertSchema(logs)
     wordCount: true,
   })
   .extend({
+    userId: z.number().int().positive("User ID is required"),
     task: z.string().min(1, "Task description is required"),
-    wordCount: z.number().min(0, "Word count must be non-negative"),
+    wordCount: z.number().int().min(0, "Word count must be non-negative"),
+    date: z.union([z.string().datetime(), z.date()]).transform(val => 
+      typeof val === 'string' ? new Date(val) : val
+    ),
   });
 
 export type InsertUser = z.infer<typeof insertUserSchema>;

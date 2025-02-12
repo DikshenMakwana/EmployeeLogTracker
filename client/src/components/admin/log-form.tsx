@@ -36,7 +36,7 @@ export function LogForm() {
 
   const createLog = useMutation({
     mutationFn: async (data: InsertLog) => {
-      // Ensure date is properly formatted as ISO string and userId is a number
+      // Format the data according to the schema
       const formattedData = {
         ...data,
         userId: Number(data.userId),
@@ -45,11 +45,15 @@ export function LogForm() {
       };
 
       console.log("Submitting log data:", formattedData);
-      const response = await apiRequest("POST", "/api/logs", formattedData);
-      return response;
+      const res = await apiRequest("POST", "/api/logs", formattedData);
+      const json = await res.json();
+      return json;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/admin/logs"] });
+      if (currentUser && !currentUser.isAdmin) {
+        queryClient.invalidateQueries({ queryKey: [`/api/logs/${currentUser.id}`] });
+      }
       form.reset();
       toast({
         title: "Success",
@@ -60,19 +64,22 @@ export function LogForm() {
       console.error("Failed to create log:", error);
       toast({
         title: "Error",
-        description: "Failed to create log. Please try again.",
+        description: error.message || "Failed to create log. Please try again.",
         variant: "destructive",
       });
     },
   });
 
-  const onSubmit = async (data: InsertLog) => {
+  async function onSubmit(data: InsertLog) {
     try {
+      if (!data.userId && currentUser) {
+        data.userId = currentUser.id;
+      }
       await createLog.mutateAsync(data);
     } catch (error) {
       console.error("Form submission error:", error);
     }
-  };
+  }
 
   return (
     <Card>
@@ -121,16 +128,17 @@ export function LogForm() {
                       <FormControl>
                         <Button
                           variant="outline"
-                          className="w-full justify-start text-left font-normal">
+                          className="w-full justify-start text-left font-normal"
+                        >
                           <CalendarIcon className="mr-2 h-4 w-4" />
-                          {field.value ? format(field.value, "PPP") : <span>Pick a date</span>}
+                          {field.value ? format(new Date(field.value), "PPP") : <span>Pick a date</span>}
                         </Button>
                       </FormControl>
                     </PopoverTrigger>
                     <PopoverContent className="w-auto p-0" align="start">
                       <Calendar
                         mode="single"
-                        selected={field.value}
+                        selected={field.value ? new Date(field.value) : undefined}
                         onSelect={field.onChange}
                         initialFocus
                       />
