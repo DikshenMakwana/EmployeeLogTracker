@@ -61,6 +61,15 @@ export function registerRoutes(app: Express): Server {
     res.sendStatus(200);
   });
 
+  app.put("/api/logs/:id", requireAdmin, async (req, res) => {
+    const parsed = insertLogSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json(parsed.error);
+    }
+    const log = await storage.updateLog(Number(req.params.id), parsed.data);
+    res.json(log);
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

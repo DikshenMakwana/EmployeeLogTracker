@@ -17,6 +17,7 @@ export interface IStorage {
   getLogsByUserId(userId: number): Promise<Log[]>;
   getAllLogs(): Promise<Log[]>;
   deleteLog(id: number): Promise<void>;
+  updateLog(id: number, data: InsertLog): Promise<Log | undefined>;
   sessionStore: session.Store;
 }
 
@@ -70,6 +71,19 @@ export class DatabaseStorage implements IStorage {
 
   async deleteLog(id: number): Promise<void> {
     await db.delete(logs).where(eq(logs.id, id));
+  }
+
+  async updateLog(id: number, data: InsertLog): Promise<Log | undefined> {
+    const [updated] = await db.update(logs)
+      .set({
+        userId: data.userId,
+        date: data.date,
+        task: data.task,
+        wordCount: data.wordCount
+      })
+      .where(eq(logs.id, id))
+      .returning();
+    return updated;
   }
 }
 
