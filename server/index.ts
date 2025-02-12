@@ -56,17 +56,13 @@ app.use((req, res, next) => {
     });
 
     // Always use port 5000 for Replit
-    const PORT = 5000;
+    const PORT = Number(process.env.PORT) || 5000;
     log(`Starting server on port ${PORT}`);
 
     server.listen(PORT, "0.0.0.0", () => {
-      log(`Server is running on port ${PORT}`);
-      if (app.get("env") === "development") {
-        setupVite(app, server);
-      } else {
-        serveStatic(app);
-      }
+      console.log(`✅ Server is running on port ${PORT}`);
     });
+
   } catch (error) {
     log(`Failed to start server: ${error}`);
     process.exit(1);
