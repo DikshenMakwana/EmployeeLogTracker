@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { DashboardLayout } from "@/components/layout/dashboard-layout";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Form } from "@/components/ui/form";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { UserTable } from "@/components/admin/user-table";
 import { LogTable } from "@/components/admin/log-table";
