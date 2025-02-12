@@ -9,13 +9,13 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="min-h-screen flex">
       {/* Sidebar */}
-      <div className="w-64 bg-primary text-white p-4">
+      <div className="w-64 bg-primary text-white p-4 flex flex-col">
         <div className="flex items-center gap-2 mb-8">
           <ClipboardList className="h-6 w-6" />
           <h1 className="text-xl font-bold">LogBook</h1>
         </div>
 
-        <nav className="space-y-2">
+        <nav className="space-y-2 flex-1">
           {user?.isAdmin ? (
             <>
               <Link href="/admin/dashboard">
@@ -32,7 +32,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
           )}
         </nav>
 
-        <div className="absolute bottom-4 left-4 right-4">
+        <div className="mt-auto pt-4 border-t border-primary/20">
           <div className="mb-4 px-4">
             <div className="font-medium">{user?.fullName}</div>
             <div className="text-sm opacity-80">{user?.isAdmin ? "Admin" : "Employee"}</div>
@@ -50,7 +50,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
       </div>
 
       {/* Main content */}
-      <div className="flex-1 p-8">{children}</div>
+      <div className="flex-1 p-8 overflow-auto">{children}</div>
     </div>
   );
 }

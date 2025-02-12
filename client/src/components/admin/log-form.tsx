@@ -32,7 +32,8 @@ export function LogForm() {
 
   const createLog = useMutation({
     mutationFn: async (data: InsertLog) => {
-      await apiRequest("POST", "/api/logs", data);
+      const response = await apiRequest("POST", "/api/logs", data);
+      return response;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/admin/logs"] });
@@ -43,13 +44,35 @@ export function LogForm() {
       });
     },
     onError: (error: Error) => {
+      console.error("Failed to create log:", error);
       toast({
         title: "Error",
-        description: error.message,
+        description: "Failed to create log. Please try again.",
         variant: "destructive",
       });
     },
   });
+
+  const onSubmit = async (data: InsertLog) => {
+    try {
+      await createLog.mutateAsync(data);
+    } catch (error) {
+      console.error("Form submission error:", error);
+    }
+  };
+
+  if (!users.length) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>Create Log Entry</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className="text-muted-foreground">No users available. Please create a user first.</p>
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <Card>
@@ -58,7 +81,7 @@ export function LogForm() {
       </CardHeader>
       <CardContent>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit((data) => createLog.mutate(data))} className="space-y-4">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <FormField
               control={form.control}
               name="userId"
@@ -74,7 +97,7 @@ export function LogForm() {
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      {users.map((user: User) => (
+                      {users.map((user) => (
                         <SelectItem key={user.id} value={user.id.toString()}>
                           {user.fullName}
                         </SelectItem>
@@ -102,7 +125,7 @@ export function LogForm() {
                         </Button>
                       </FormControl>
                     </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0">
+                    <PopoverContent className="w-auto p-0" align="start">
                       <Calendar
                         mode="single"
                         selected={field.value}
@@ -151,7 +174,11 @@ export function LogForm() {
               )}
             />
 
-            <Button type="submit" disabled={createLog.isPending}>
+            <Button 
+              type="submit" 
+              className="w-full"
+              disabled={createLog.isPending}
+            >
               {createLog.isPending ? "Creating..." : "Create Log"}
             </Button>
           </form>
