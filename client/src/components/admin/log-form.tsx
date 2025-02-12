@@ -14,9 +14,12 @@ import { CalendarIcon } from "lucide-react";
 import { format } from "date-fns";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { useAuth } from "@/hooks/use-auth";
 
 export function LogForm() {
   const { toast } = useToast();
+  const { user: currentUser } = useAuth();
+
   const { data: users = [] } = useQuery<User[]>({
     queryKey: ["/api/admin/users"],
   });
@@ -27,16 +30,21 @@ export function LogForm() {
       task: "",
       wordCount: 0,
       date: new Date(),
+      userId: currentUser?.isAdmin ? undefined : currentUser?.id,
     },
   });
 
   const createLog = useMutation({
     mutationFn: async (data: InsertLog) => {
-      // Ensure date is properly formatted as ISO string
+      // Ensure date is properly formatted as ISO string and userId is a number
       const formattedData = {
         ...data,
+        userId: Number(data.userId),
         date: new Date(data.date).toISOString(),
+        wordCount: Number(data.wordCount),
       };
+
+      console.log("Submitting log data:", formattedData);
       const response = await apiRequest("POST", "/api/logs", formattedData);
       return response;
     },
@@ -66,19 +74,6 @@ export function LogForm() {
     }
   };
 
-  if (!users.length) {
-    return (
-      <Card>
-        <CardHeader>
-          <CardTitle>Create Log Entry</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p className="text-muted-foreground">No users available. Please create a user first.</p>
-        </CardContent>
-      </Card>
-    );
-  }
-
   return (
     <Card>
       <CardHeader>
@@ -87,32 +82,34 @@ export function LogForm() {
       <CardContent>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            <FormField
-              control={form.control}
-              name="userId"
-              render={({ field }) => (
-                <FormItem>
-                  <Select
-                    onValueChange={(value) => field.onChange(Number(value))}
-                    value={field.value?.toString()}
-                  >
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select employee" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {users.map((user) => (
-                        <SelectItem key={user.id} value={user.id.toString()}>
-                          {user.fullName}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            {currentUser?.isAdmin && (
+              <FormField
+                control={form.control}
+                name="userId"
+                render={({ field }) => (
+                  <FormItem>
+                    <Select
+                      onValueChange={(value) => field.onChange(Number(value))}
+                      value={field.value?.toString()}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select employee" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {users.map((user) => (
+                          <SelectItem key={user.id} value={user.id.toString()}>
+                            {user.fullName}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            )}
 
             <FormField
               control={form.control}
