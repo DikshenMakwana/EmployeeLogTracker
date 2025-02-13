@@ -1,7 +1,7 @@
 import dotenv from "dotenv";
 dotenv.config();
-console.log("DATABASE_URL from env:", process.env.DATABASE_URL);
 import express, { type Request, Response, NextFunction } from "express";
+import session from "express-session"; // Import express-session
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import { storage } from "./storage";
@@ -9,6 +9,16 @@ import { storage } from "./storage";
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
+
+// ✅ Add express-session middleware
+app.use(
+  session({
+    secret: process.env.SESSION_SECRET || "fallback_secret", // Use env variable or fallback
+    resave: false,
+    saveUninitialized: true,
+    cookie: { secure: process.env.NODE_ENV === "production" } // Secure in production
+  })
+);
 
 app.use((req, res, next) => {
   const start = Date.now();
@@ -44,8 +54,6 @@ app.use((req, res, next) => {
   try {
     const server = registerRoutes(app);
 
-    // Initialize default admin user
-    // Assume 'storage' object and initDefaultAdmin() method exist.  Implementation needed elsewhere.
     storage.initDefaultAdmin().catch(console.error);
 
     app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
@@ -55,7 +63,6 @@ app.use((req, res, next) => {
       res.status(status).json({ message });
     });
 
-    // Always use port 5000 for Replit
     const PORT = Number(process.env.PORT) || 5000;
     log(`Starting server on port ${PORT}`);
 
