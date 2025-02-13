@@ -8,6 +8,16 @@ import bcrypt from 'bcrypt';
 
 const PostgresSessionStore = connectPg(session);
 
+const sessionStore = new PostgresSessionStore({
+  pool,
+  createTableIfMissing: true,
+});
+
+sessionStore.on('error', (err) => {
+  console.error("❌ Session store error:", err);
+  process.exit(1);
+});
+
 // export interface IStorage {
 //   getUser(id: number): Promise<User | undefined>;
 //   getUserByUsername(username: string): Promise<User | undefined>;
