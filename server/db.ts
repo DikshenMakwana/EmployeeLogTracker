@@ -15,3 +15,9 @@ if (!process.env.DATABASE_URL) {
 
 export const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 export const db = drizzle({ client: pool, schema });
+
+process.on("SIGINT", async () => {
+  console.log("❌ Closing database connection...");
+  await pool.end(); // Close DB connection
+  process.exit();
+});
