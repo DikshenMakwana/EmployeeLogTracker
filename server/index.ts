@@ -7,10 +7,15 @@ import PgSession from "connect-pg-simple";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import { storage } from "./storage";
+import path from "path";
 
 const app = express();
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
+// ✅ Serve the built frontend files
+app.use(express.static(path.join(__dirname, "../client/dist")));
+
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "../client/dist", "index.html"));
+});
 
 // ✅ PostgreSQL Session Store
 const pgPool = new pg.Pool({
